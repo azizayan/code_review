@@ -99,7 +99,7 @@ def check_reproducibility(source_code:str):
         
         if not has_seed:
             issues.append(Issue(
-                code="non reproducable",
+                name="non reproducable",
                 message="No random seed detected. Results will not be trustworthy.",
                 lineno=1,
                 importance="medium"
