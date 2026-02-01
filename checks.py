@@ -4,7 +4,7 @@ from analyzer import FunctionInfo, ImportInfo
 
 @dataclass
 class Issue:
-    code: str
+    name: str
     message: str
     lineno: int
     importance: str
@@ -14,10 +14,10 @@ def check_docstrings(functions: List[FunctionInfo]):
     for func in functions:
         if not func.docstring:
             issues.append(Issue(
-                code="basic standarts ",
+                name="basic standarts",
                 message=f"Function '{func.name}' is missing a docstring.",
                 lineno=func.lineno,
-                severity="low"
+                importance="low"
             ))
     return issues
 
@@ -28,10 +28,10 @@ def check_imports_top_level(imports: List[ImportInfo]) -> List[Issue]:
         
         if imp.lineno > 50: 
             issues.append(Issue(
-                code="hard coded import checks",
+                name="hard coded import checks",
                 message=f"Late import detected: '{imp.module}'. Move to top of file.",
                 lineno=imp.lineno,
-                severity="low"
+                importance="low"
             ))
     return issues
 
@@ -51,8 +51,60 @@ def check_hardcoded_paths(source_code: str) -> List[Issue]:
         if stripped.startswith("#") or stripped.startswith("import") or stripped.startswith("from"):
             continue
 
-       
-        
-        pass 
+        for pattern in suspicious_substrings:
+            if pattern in line:
+                issues.append(Issue(
+                    name= "security error",
+                    message=f"Hardcoded path detected ('{pattern}'). Use relative paths or config files.",
+                    lineno=line_num,
+                    importance="high"
+                ))
+                break
+            
 
     return issues
+
+
+def check_train_test_split(imports: List[ImportInfo]):
+    issues = []
+    splitting_tools = {"train_test_split", "KFold", "StratifiedKFold", "TimeSeriesSplit"}
+
+    split_tool_found = False
+
+    for imp in imports:
+        if any(tool in imp.module for tool in splitting_tools):
+                found_split = True
+                break
+        
+    if not split_tool_found:
+        issues.append(Issue(
+            name="split error",
+            message="No data splitting tool detected. Risk of data leakage.",
+            lineno= 1,
+            importance="high"
+
+        ))
+
+    return issues
+
+def check_reproducibility(source_code:str):
+    issues = []
+    seed_keywords = ["random_state=", "seed=", "np.random.seed", "torch.manual_seed", "tf.random.set_seed"]
+
+
+    has_seed = False
+    for keyword in seed_keywords:
+        if keyword in source_code:
+            has_seed = True
+        
+        if not has_seed:
+            issues.append(Issue(
+                code="non reproducable",
+                message="No random seed detected. Results will not be trustworthy.",
+                lineno=1,
+                importance="medium"
+            ))
+
+        return issues
+    
+
