@@ -1,0 +1,2 @@
+[console_scripts]
+reviewer = ml_reviewer.main:main_cli_entry_point

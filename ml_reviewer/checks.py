@@ -1,6 +1,9 @@
 from typing import List
 from dataclasses import dataclass
-from analyzer import FunctionInfo, ImportInfo
+try:
+    from .analyzer import FunctionInfo, ImportInfo
+except ImportError:
+    from analyzer import FunctionInfo, ImportInfo
 
 @dataclass
 class Issue:
@@ -106,5 +109,5 @@ def check_reproducibility(source_code:str):
             ))
 
         return issues
-    
+
 
