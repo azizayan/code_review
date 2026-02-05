@@ -5,9 +5,11 @@ from ml_reviewer.analyzer import parse_code
 from ml_reviewer import checks
 from ml_reviewer import extractor
 from ml_reviewer import ui
+from . import data_advisor
+
 
 def analyze_file(filepath: str):
-    print(f"Analyzing {filepath}...\n")
+    ui.print_banner()
     
     
     try:
@@ -28,6 +30,7 @@ def analyze_file(filepath: str):
     all_issues.extend(checks.check_reproducibility(source_code))
     
     
+    
     if not all_issues:
         print("No issues found! Clean code.")
         return
@@ -46,6 +49,8 @@ if __name__ == "__main__":
         print("Usage: python main.py <your_script.py>")
     else:
         analyze_file(sys.argv[1])
+
+
 
 
 def main_cli_entry_point():
