@@ -1,5 +1,6 @@
 import json
-import requests
+import urllib.request
+import urllib.error
 import re
 
 
@@ -56,33 +57,27 @@ def extract_ml_facts(source_code: str):
     Return ONLY the JSON. Do not explain.
     """
 
+    data = {
+        "model": "mistral",
+        "prompt": prompt,
+        "stream": False,  
+        "format": "json"  
+    }
 
     try: 
-        response = requests.post(
+        req = urllib.request.Request(
             "http://localhost:11434/api/generate",
-            json={
-                "model": "mistral",
-                "prompt": prompt,
-                "stream": False,  
-                "format": "json"  
-            },
-            timeout=120 
+            data=json.dumps(data).encode("utf-8"),
+            headers={'Content-Type': 'application/json'}
         )
+        
+        with urllib.request.urlopen(req) as response:
+            result = json.loads(response.read().decode("utf-8"))
+            raw_text = result['response']
+            return clean_and_repair_json(raw_text)
 
-        response.raise_for_status()
-        raw_text = response.json()['response']
-
-        json_text = clean_and_repair_json(raw_text)
-        facts = json_text
-        return facts
-    
-
-    except requests.exceptions.ConnectionError:
-        print("Error: Connection error. Is Ollama running(run 'ollama serve')")
-        return{
-        }
-    except json.JSONDecodeError:
-        print(f"Error: Model failed to generate valid JSON.\nRaw output: {raw_text[:100]}...")
+    except urllib.error.URLError:
+        print("Error: Connection error. Is Ollama running? (run 'ollama serve')")
         return {}
     except Exception as e:
         print(f"Error: Unexpected error: {e}")

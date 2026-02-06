@@ -1,6 +1,6 @@
 import pandas as pd 
 import json
-import requests
+import urllib.request
 import urllib.error
 
 
@@ -17,7 +17,7 @@ def get_dataset_profile(csv_path: str):
         "issues": []
     }
 
-    missing = dataset.isnull.sum()
+    missing = dataset.isnull().sum()
     for col, count in missing.items():
         if count > 0 :
             percentage = (count / len(dataset)) * 100

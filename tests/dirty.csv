@@ -1,0 +1,7 @@
+id,age,salary,city
+1,25,50000,New York
+2,,60000,Paris
+3,30,,London
+1,25,50000,New York
+4,22,45000,Berlin
+5,29,70000,Tokyo
