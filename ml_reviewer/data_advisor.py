@@ -20,7 +20,7 @@ def get_dataset_profile(csv_path: str):
     missing = dataset.isnull.sum()
     for col, count in missing.items():
         if count > 0 :
-            percentage = (count / len(df)) * 100
+            percentage = (count / len(dataset)) * 100
             profile["issues"].append({
                 "column": col,
                 "problem": "missing_values",
@@ -28,7 +28,7 @@ def get_dataset_profile(csv_path: str):
                 "severity": "high" if percentage > 20 else "medium"
             })
 
-    dupes = df.duplicated().sum()
+    dupes = dataset.duplicated().sum()
     if dupes > 0:
         profile["issues"].append({
             "problem": "duplicate_rows",
@@ -36,9 +36,9 @@ def get_dataset_profile(csv_path: str):
             "severity": "low"
         })
 
-    for col in df.select_dtypes(include=['object']):
-        unique_count = df[col].nunique()
-        if unique_count > 50 and unique_count < len(df):
+    for col in dataset.select_dtypes(include=['object']):
+        unique_count =dataset[col].nunique()
+        if unique_count > 50 and unique_count < len(dataset):
              profile["issues"].append({
                 "column": col,
                 "problem": "high_cardinality",
